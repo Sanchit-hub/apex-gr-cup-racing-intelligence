@@ -171,12 +171,12 @@ class LapAnalyzer:
         """Load lap time data."""
         if self.use_s3:
             # Load from S3
-            start_df = self.s3_loader.load_lap_times(track_name, session)
+            start_df = self.s3_loader.load_lap_times(track_name, session, "lap_start")
             if start_df is None:
                 return pd.DataFrame()
             
             # Try to load lap end file
-            end_df = self.s3_loader.load_lap_times(track_name, session.replace('_lap_start', '_lap_end'))
+            end_df = self.s3_loader.load_lap_times(track_name, session, "lap_end")
             
             if start_df is not None and end_df is not None:
                 # Merge on vehicle_id and lap

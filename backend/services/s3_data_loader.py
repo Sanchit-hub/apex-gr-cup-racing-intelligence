@@ -20,12 +20,23 @@ class S3DataLoader:
         
         Args:
             track_name: Name of the track (e.g., 'barber_motorsports_park')
-            filename: Name of the file (e.g., 'practice_lap_start.csv')
+            filename: Name of the file (e.g., 'R1_barber_lap_start.csv')
             
         Returns:
-            S3 key in format 'data/{track_name}/{filename}'
+            S3 key in format 'data/{track_name}/{subdir}/{filename}'
         """
-        return f"data/{track_name}/{filename}"
+        # Handle different track structures
+        track_base = track_name.split("_")[0]  # e.g., "barber" from "barber_motorsports_park"
+        
+        # Try multiple subdirectory patterns
+        possible_keys = [
+            f"data/{track_name}/{track_base}/{filename}",  # data/barber_motorsports_park/barber/file.csv
+            f"data/{track_name}/{filename}",  # data/indianapolis/file.csv
+            f"data/{track_name}/Race 1/{filename}",  # data/COTA/Race 1/file.csv
+            f"data/{track_name}/Race 2/{filename}",  # data/COTA/Race 2/file.csv
+        ]
+        
+        return possible_keys
     
     def _download_csv_from_s3(self, s3_key: str) -> Optional[pd.DataFrame]:
         """Download and parse CSV from S3.
@@ -47,32 +58,40 @@ class S3DataLoader:
             print(f"Error loading {s3_key}: {e}")
             return None
     
-    def load_lap_times(self, track_name: str, session: str) -> Optional[pd.DataFrame]:
+    def load_lap_times(self, track_name: str, session: str, file_type: str = "lap_start") -> Optional[pd.DataFrame]:
         """Load lap times from S3 with pattern matching.
         
         Tries multiple naming patterns to handle variations in file naming.
         
         Args:
             track_name: Name of the track
-            session: Session name (e.g., 'practice', 'qualifying', 'race')
+            session: Session name (e.g., 'R1', 'R2')
+            file_type: Type of file to load ('lap_start' or 'lap_end')
             
         Returns:
             DataFrame with lap times if found, None otherwise
         """
+        track_base = track_name.split("_")[0]
+        
         # Try different naming patterns
         patterns = [
-            f"{session}_{track_name}_lap_start.csv",
-            f"{session}_{track_name.replace('_', '-')}_lap_start.csv",
-            f"{session}_lap_start.csv"
+            f"{session}_{track_base}_{file_type}.csv",  # R1_barber_lap_start.csv
+            f"{session}_{track_name}_{file_type}.csv",
+            f"{session}_{track_name.replace('_', '-')}_{file_type}.csv",
+            f"{session}_{file_type}.csv"
         ]
         
         for pattern in patterns:
-            s3_key = self._get_s3_key(track_name, pattern)
-            df = self._download_csv_from_s3(s3_key)
-            if df is not None:
-                return df
+            # Try all possible S3 key locations
+            possible_keys = self._get_s3_key(track_name, pattern)
+            for s3_key in possible_keys:
+                df = self._download_csv_from_s3(s3_key)
+                if df is not None:
+                    return df
         
-        print(f"Warning: Could not find lap times for {track_name}/{session}")
+        # Only print warning for lap_start files (lap_end is optional)
+        if file_type == "lap_start":
+            print(f"Warning: Could not find lap times for {track_name}/{session}")
         return None
     
     def load_telemetry(self, track_name: str, session: str) -> Optional[pd.DataFrame]:
