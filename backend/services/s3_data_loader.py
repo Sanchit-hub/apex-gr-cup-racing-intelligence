@@ -76,9 +76,12 @@ class S3DataLoader:
         # Try different naming patterns
         patterns = [
             f"{session}_{track_base}_{file_type}.csv",  # R1_barber_lap_start.csv
-            f"{session}_{track_name}_{file_type}.csv",
-            f"{session}_{track_name.replace('_', '-')}_{file_type}.csv",
-            f"{session}_{file_type}.csv"
+            f"{session}_{track_name}_{file_type}.csv",  # R1_indianapolis_lap_start.csv
+            f"{session}_{track_name.replace('_', '-')}_{file_type}.csv",  # R1_indianapolis-motor-speedway_lap_start.csv
+            f"{session}_indianapolis_motor_speedway_{file_type}.csv",  # R1_indianapolis_motor_speedway_lap_start.csv
+            f"{session}_circuit_of_the_americas_{file_type}.csv",  # R1_circuit_of_the_americas_lap_start.csv
+            f"{session}_virginia_international_raceway_{file_type}.csv",  # R1_virginia_international_raceway_lap_start.csv
+            f"{session}_{file_type}.csv"  # R1_lap_start.csv
         ]
         
         for pattern in patterns:
