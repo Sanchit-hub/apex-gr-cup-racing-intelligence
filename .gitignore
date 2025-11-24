@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+.next/
+out/
+
+# Data
+data/
+*.csv
+*.zip
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
