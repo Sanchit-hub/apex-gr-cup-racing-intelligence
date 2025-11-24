@@ -196,11 +196,23 @@ class S3DataLoader:
             sessions = set()
             for obj in response.get('Contents', []):
                 filename = obj['Key'].split('/')[-1]
-                if '_lap_start.csv' in filename:
+                # Skip directory markers and non-CSV files
+                if not filename or filename == '.' or not filename.endswith('.csv'):
+                    continue
+                    
+                if '_lap_start.csv' in filename or 'lap_start_time' in filename:
                     session = filename.split('_')[0]
-                    sessions.add(session)
+                    # Only add valid session names (R1, R2, etc.)
+                    if session and session.startswith('R') and len(session) == 2:
+                        sessions.add(session)
+                    # Handle COTA pattern: COTA_lap_start_time_R1.csv
+                    elif '_R' in filename:
+                        parts = filename.split('_R')
+                        if len(parts) > 1:
+                            session_num = parts[1].split('.')[0]
+                            sessions.add(f'R{session_num}')
             
-            return list(sessions)
+            return sorted(list(sessions))
         except Exception as e:
             print(f"Error listing sessions: {e}")
             return []
