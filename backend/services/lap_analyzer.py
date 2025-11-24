@@ -3,15 +3,24 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any
+import os
 
 class LapAnalyzer:
     """Analyzes lap times and sector performance."""
     
     def __init__(self):
         self.data_dir = Path("data")
+        self.use_s3 = os.getenv('USE_S3_DATA', 'false').lower() == 'true'
+        
+        if self.use_s3:
+            from backend.services.s3_data_loader import S3DataLoader
+            self.s3_loader = S3DataLoader()
     
     def get_available_tracks(self) -> List[str]:
         """Get list of available tracks."""
+        if self.use_s3:
+            return sorted(self.s3_loader.get_available_tracks())
+        
         if not self.data_dir.exists():
             return []
         
@@ -27,6 +36,12 @@ class LapAnalyzer:
     
     def get_sessions(self, track_name: str) -> List[str]:
         """Get available sessions for a track."""
+        if self.use_s3:
+            sessions = self.s3_loader.get_available_sessions(track_name)
+            if not sessions:
+                raise ValueError(f"Track {track_name} not found")
+            return sorted(sessions)
+        
         # Try multiple directory patterns
         track_base = track_name.split("_")[0]  # e.g., "barber" from "barber_motorsports_park"
         possible_dirs = [
@@ -147,6 +162,34 @@ class LapAnalyzer:
     
     def _load_lap_times(self, track_name: str, session: str) -> pd.DataFrame:
         """Load lap time data."""
+        if self.use_s3:
+            # Load from S3
+            start_df = self.s3_loader.load_lap_times(track_name, session)
+            if start_df is None:
+                return pd.DataFrame()
+            
+            # Try to load lap end file
+            end_df = self.s3_loader.load_lap_times(track_name, session.replace('_lap_start', '_lap_end'))
+            
+            if start_df is not None and end_df is not None:
+                # Merge on vehicle_id and lap
+                start_df['start_time'] = pd.to_datetime(start_df['timestamp'])
+                end_df['end_time'] = pd.to_datetime(end_df['timestamp'])
+                
+                merged = pd.merge(
+                    start_df[['vehicle_id', 'lap', 'start_time']],
+                    end_df[['vehicle_id', 'lap', 'end_time']],
+                    on=['vehicle_id', 'lap'],
+                    how='inner'
+                )
+                
+                merged['lap_time'] = (merged['end_time'] - merged['start_time']).dt.total_seconds()
+                # Filter out invalid times (lap time should be at least 60 seconds for a race track)
+                return merged[(merged['lap_time'] > 60) & (merged['lap_time'] < 300)]
+            
+            return pd.DataFrame()
+        
+        # Load from local files
         # Try multiple directory patterns
         track_base = track_name.split("_")[0]  # e.g., "barber" from "barber_motorsports_park"
         possible_dirs = [

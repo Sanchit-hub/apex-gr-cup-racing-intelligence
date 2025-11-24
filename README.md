@@ -137,6 +137,33 @@ npm run dev
 
 Access dashboard at `http://localhost:3000`
 
+## ☁️ Cloud Deployment with AWS S3
+
+For production deployments with all 7 tracks (3GB+ data), use AWS S3 to host race data:
+
+### Why S3?
+- **Bypass deployment size limits** (Render: 500MB, Netlify: 100MB)
+- **Deploy all 7 tracks** with complete telemetry data
+- **Cost-effective** (~$0.10/month or free tier)
+- **Fast access** with global CDN support
+
+### Quick Setup
+1. **Follow the complete guide**: [AWS_SETUP_GUIDE.md](AWS_SETUP_GUIDE.md)
+2. **Create S3 bucket** and upload data
+3. **Configure Render** with S3 environment variables
+4. **Deploy** with full data access
+
+### Environment Variables for S3
+```bash
+USE_S3_DATA=true
+S3_BUCKET_NAME=apex-racing-data
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+```
+
+See [AWS_SETUP_GUIDE.md](AWS_SETUP_GUIDE.md) for detailed step-by-step instructions.
+
 ## 📈 Research Foundation
 
 This project is built on peer-reviewed motorsports research:
