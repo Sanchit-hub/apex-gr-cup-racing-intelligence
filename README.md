@@ -1,6 +1,4 @@
-# Writing full README.md content directly to file without pandoc
 
-readme_text = """
 # APEX - Adaptive Performance Engine for eXcellence
 
 **Toyota GR Cup "Hack the Track" Hackathon 2025 Submission**
@@ -135,3 +133,4 @@ APEX supports all 7 Toyota GR Cup tracks:
 ```bash
 python 3.11+
 node 18+
+
