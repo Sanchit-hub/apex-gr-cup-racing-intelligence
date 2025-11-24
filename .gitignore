@@ -23,8 +23,7 @@ dist/
 out/
 
 # Data
-data/
-*.csv
+# data/  # Temporarily allow data for deployment
 *.zip
 *.pdf
 

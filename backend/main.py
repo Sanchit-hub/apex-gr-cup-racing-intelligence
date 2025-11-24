@@ -1,17 +1,7 @@
 """FastAPI backend for GR Cup Analytics."""
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# Use mock data if data directory doesn't exist (for deployment)
-USE_MOCK_DATA = not os.path.exists("data") or len(os.listdir("data")) == 0
-
-if USE_MOCK_DATA:
-    from backend.routers import mock_analytics as analytics
-    from backend.routers import mock_strategy as strategy
-    from backend.routers import telemetry  # Keep telemetry as is
-else:
-    from backend.routers import analytics, telemetry, strategy
+from backend.routers import analytics, telemetry, strategy
 
 app = FastAPI(
     title="GR Cup Racing Intelligence API",
