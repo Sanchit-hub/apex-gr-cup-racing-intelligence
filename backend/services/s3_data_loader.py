@@ -15,26 +15,37 @@ class S3DataLoader:
         self.bucket_name = os.getenv('S3_BUCKET_NAME', 'apex-racing-data')
         self.base_url = f"https://{self.bucket_name}.s3.amazonaws.com"
         
-    def _get_s3_key(self, track_name: str, filename: str) -> str:
-        """Generate S3 key for a file.
+    def _get_s3_key(self, track_name: str, filename: str) -> list:
+        """Generate S3 keys for a file.
         
         Args:
             track_name: Name of the track (e.g., 'barber_motorsports_park')
             filename: Name of the file (e.g., 'R1_barber_lap_start.csv')
             
         Returns:
-            S3 key in format 'data/{track_name}/{subdir}/{filename}'
+            List of possible S3 keys to try
         """
         # Handle different track structures
         track_base = track_name.split("_")[0]  # e.g., "barber" from "barber_motorsports_park"
+        
+        # Extract session from filename if present (e.g., "R1" from "R1_barber_lap_start.csv")
+        session = None
+        if filename.startswith("R1") or filename.startswith("R2"):
+            session = filename[:2]
         
         # Try multiple subdirectory patterns
         possible_keys = [
             f"data/{track_name}/{track_base}/{filename}",  # data/barber_motorsports_park/barber/file.csv
             f"data/{track_name}/{filename}",  # data/indianapolis/file.csv
-            f"data/{track_name}/Race 1/{filename}",  # data/COTA/Race 1/file.csv
-            f"data/{track_name}/Race 2/{filename}",  # data/COTA/Race 2/file.csv
         ]
+        
+        # Add Race 1/Race 2 patterns for COTA-style structure
+        if session:
+            race_num = session[1]  # "1" or "2"
+            possible_keys.extend([
+                f"data/{track_name}/Race {race_num}/{filename}",  # data/COTA/Race 1/file.csv
+                f"data/{track_name}/race {race_num}/{filename}",  # data/COTA/race 1/file.csv (lowercase)
+            ])
         
         return possible_keys
     
@@ -72,17 +83,37 @@ class S3DataLoader:
             DataFrame with lap times if found, None otherwise
         """
         track_base = track_name.split("_")[0]
+        track_upper = track_name.upper()
         
-        # Try different naming patterns
-        patterns = [
-            f"{session}_{track_base}_{file_type}.csv",  # R1_barber_lap_start.csv
-            f"{session}_{track_name}_{file_type}.csv",  # R1_indianapolis_lap_start.csv
-            f"{session}_{track_name.replace('_', '-')}_{file_type}.csv",  # R1_indianapolis-motor-speedway_lap_start.csv
-            f"{session}_indianapolis_motor_speedway_{file_type}.csv",  # R1_indianapolis_motor_speedway_lap_start.csv
-            f"{session}_circuit_of_the_americas_{file_type}.csv",  # R1_circuit_of_the_americas_lap_start.csv
-            f"{session}_virginia_international_raceway_{file_type}.csv",  # R1_virginia_international_raceway_lap_start.csv
-            f"{session}_{file_type}.csv"  # R1_lap_start.csv
-        ]
+        # Map file_type to various naming conventions
+        file_type_variants = {
+            "lap_start": ["lap_start", "lap_start_time"],
+            "lap_end": ["lap_end", "lap_end_time"]
+        }
+        
+        variants = file_type_variants.get(file_type, [file_type])
+        
+        # Try different naming patterns for each variant
+        patterns = []
+        for variant in variants:
+            patterns.extend([
+                # Standard patterns
+                f"{session}_{track_base}_{variant}.csv",  # R1_barber_lap_start.csv
+                f"{session}_{track_name}_{variant}.csv",  # R1_indianapolis_lap_start.csv
+                f"{session}_{track_name.replace('_', '-')}_{variant}.csv",  # R1_road-america_lap_start.csv
+                
+                # Full track name patterns
+                f"{session}_indianapolis_motor_speedway_{variant}.csv",
+                f"{session}_circuit_of_the_americas_{variant}.csv",
+                f"{session}_virginia_international_raceway_{variant}.csv",
+                
+                # COTA special pattern (reversed order)
+                f"{track_upper}_{variant}_{session}.csv",  # COTA_lap_start_time_R1.csv
+                f"{track_base.upper()}_{variant}_{session}.csv",  # COTA_lap_start_R1.csv
+                
+                # Generic patterns
+                f"{session}_{variant}.csv",  # R1_lap_start.csv
+            ])
         
         for pattern in patterns:
             # Try all possible S3 key locations
