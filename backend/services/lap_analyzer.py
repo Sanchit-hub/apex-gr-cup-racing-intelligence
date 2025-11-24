@@ -60,9 +60,16 @@ class LapAnalyzer:
             raise ValueError(f"Track {track_name} not found")
         
         sessions = set()
-        for file in track_dir.glob("R*_lap_time.csv"):
+        # Look for lap_start files (more reliable than lap_time)
+        for file in track_dir.glob("R*_lap_start.csv"):
             session = file.stem.split("_")[0]
             sessions.add(session)
+        
+        # Fallback to lap_time if no lap_start found
+        if not sessions:
+            for file in track_dir.glob("R*_lap_time.csv"):
+                session = file.stem.split("_")[0]
+                sessions.add(session)
         
         return sorted(list(sessions))
     
