@@ -23,13 +23,15 @@
 
 ---
 
-## ⚠️ **Data Limitation:**
+## ✅ **Demo Data Solution:**
 
-The live deployment shows "No Data Found" because:
+The live deployment now uses **mock/demo data** to demonstrate full functionality:
 
-1. **Large Data Files**: The race data consists of 7 ZIP files (total ~500MB) containing telemetry data for all tracks
-2. **Free Tier Limits**: Render's free tier has storage limitations that prevent uploading these large datasets
-3. **GitHub Limits**: GitHub also has file size limits (100MB per file)
+1. **Mock Data Service**: Generates realistic racing data on-the-fly
+2. **All Features Working**: Lap analysis, driver performance, consistency metrics
+3. **Full UI/UX**: Complete dashboard experience with charts and visualizations
+
+**Note**: The actual race data files (~500MB) are too large for free hosting tiers, so the live demo uses generated data that follows the same patterns and structure as real telemetry data.
 
 ---
 
