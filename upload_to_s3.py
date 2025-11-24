@@ -37,11 +37,11 @@ def upload_directory_to_s3(local_directory, bucket_name, s3_prefix=''):
             print(f"📤 Uploading {relative_path}...")
             
             try:
+                # Upload without ACL (bucket policy handles public access)
                 s3_client.upload_file(
                     str(file_path),
                     bucket_name,
-                    s3_key,
-                    ExtraArgs={'ACL': 'public-read'}  # Make files publicly readable
+                    s3_key
                 )
                 print(f"✅ Uploaded {s3_key}")
                 success_count += 1
