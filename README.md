@@ -23,6 +23,8 @@ APEX democratizes professional-grade racing analytics, making it accessible to e
 - **Backend API**: [https://apex-backend-7orz.onrender.com](https://apex-backend-7orz.onrender.com)
 - **API Documentation**: [https://apex-backend-7orz.onrender.com/docs](https://apex-backend-7orz.onrender.com/docs)
 
+**Note**: Live demo uses sampled real data from Barber Motorsports Park (1% of telemetry for deployment size). Full dataset available locally.
+
 ### 📺 Project Story
 Read our complete hackathon submission story: [PROJECT_STORY.md](PROJECT_STORY.md)
 - Why we built APEX (Inspiration)
