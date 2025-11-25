@@ -19,11 +19,11 @@ Professional racing analytics tools cost tens of thousands of dollars and requir
 APEX democratizes professional-grade racing analytics, making it accessible to every driver and team. With sub-100ms response times and research-backed algorithms, APEX helps drivers improve by **0.5-1.0 seconds per lap**—often the difference between podium and mid-pack. Over a 30-lap race, that's **15-30 seconds** of total time savings.
 
 ### 🌐 Live Demo
-- **Frontend**: [https://apex-gr-cup.netlify.app](https://apex-gr-cup.netlify.app)
-- **Backend API**: [https://apex-backend-7orz.onrender.com](https://apex-backend-7orz.onrender.com)
+- **Frontend**: [https://apex-gr-cup.netlify.app](https://apex-gr-cup.netlify.app) ✅ **LIVE**
+- **Backend API**: [https://apex-backend-7orz.onrender.com](https://apex-backend-7orz.onrender.com) ✅ **LIVE**
 - **API Documentation**: [https://apex-backend-7orz.onrender.com/docs](https://apex-backend-7orz.onrender.com/docs)
 
-**Note**: Live demo uses sampled real data from Barber Motorsports Park (1% of telemetry for deployment size). Full dataset available locally.
+**✨ Full Production Deployment**: All 7 tracks with complete telemetry data hosted on AWS S3, backend on Render, frontend on Netlify.
 
 ### 📺 Project Story
 Read our complete hackathon submission story: [PROJECT_STORY.md](PROJECT_STORY.md)
