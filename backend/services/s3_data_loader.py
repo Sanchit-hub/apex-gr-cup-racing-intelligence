@@ -200,17 +200,23 @@ class S3DataLoader:
                 if not filename or filename == '.' or not filename.endswith('.csv'):
                     continue
                     
+                # Only process lap_start files
                 if '_lap_start.csv' in filename or 'lap_start_time' in filename:
-                    session = filename.split('_')[0]
-                    # Only add valid session names (R1, R2, etc.)
-                    if session and session.startswith('R') and len(session) == 2:
+                    # Extract session from filename
+                    # Pattern 1: R1_barber_lap_start.csv -> R1
+                    # Pattern 2: COTA_lap_start_time_R1.csv -> R1
+                    
+                    if filename.startswith('R') and len(filename) > 2 and filename[1].isdigit():
+                        # Standard pattern: R1_xxx or R2_xxx
+                        session = filename[:2]  # Get R1 or R2
                         sessions.add(session)
-                    # Handle COTA pattern: COTA_lap_start_time_R1.csv
                     elif '_R' in filename:
+                        # COTA pattern: COTA_lap_start_time_R1.csv
                         parts = filename.split('_R')
                         if len(parts) > 1:
-                            session_num = parts[1].split('.')[0]
-                            sessions.add(f'R{session_num}')
+                            session_num = parts[1].split('.')[0].split('_')[0]  # Get just the number
+                            if session_num.isdigit():
+                                sessions.add(f'R{session_num}')
             
             return sorted(list(sessions))
         except Exception as e:
