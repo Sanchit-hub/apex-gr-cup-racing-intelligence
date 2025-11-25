@@ -41,6 +41,13 @@ data/
 deploy_data/
 *.zip
 
+# PDFs and maps
+*.pdf
+
+# Deployment scripts
+check_deployment.ps1
+test_render_deployment.py
+
 # OS
 .DS_Store
 Thumbs.db
